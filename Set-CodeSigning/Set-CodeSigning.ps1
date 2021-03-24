@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-	Sign PowerShell scripts with a Code Signing certificate
+    Sign PowerShell scripts with a Code Signing certificate
 
 .DESCRIPTION
     This scripts permits to sign PowerShell scripts with a Code Signing certificate. It needs to be
@@ -77,62 +77,62 @@ Process
     # **  ------------------*-*-*-*----------------------*-*-*-*------------------  ** #
 
     function Write-CMLogEntry {
-		param(
-			[Parameter(Mandatory = $true, HelpMessage = 'Message added to the log file.')]
-			[ValidateNotNullOrEmpty()]
-			[String]$Message,
-			
-			[Parameter(Mandatory = $true, HelpMessage = 'Severity for the log entry. 1 for Informational, 2 for Warning and 3 for Error.')]
-			[ValidateNotNullOrEmpty()]
-			[ValidateSet('1', '2', '3')]
-			[String]$Severity,
+        param(
+            [Parameter(Mandatory = $true, HelpMessage = 'Message added to the log file.')]
+            [ValidateNotNullOrEmpty()]
+            [String]$Message,
+            
+            [Parameter(Mandatory = $true, HelpMessage = 'Severity for the log entry. 1 for Informational, 2 for Warning and 3 for Error.')]
+            [ValidateNotNullOrEmpty()]
+            [ValidateSet('1', '2', '3')]
+            [String]$Severity,
 
             [Parameter(Mandatory = $false, HelpMessage = 'Name of the log directory location.')]
-			[ValidateNotNullOrEmpty()]
-			[String]$LogsDirectory = $scriptRoot,
+            [ValidateNotNullOrEmpty()]
+            [String]$LogsDirectory = $scriptRoot,
 
             [Parameter(Mandatory = $false, HelpMessage = 'Name of the log file that the entry will written to.')]
-			[ValidateNotNullOrEmpty()]
-			[String]$FileName = "$scriptName.log"
-		)
+            [ValidateNotNullOrEmpty()]
+            [String]$FileName = "$scriptName.log"
+        )
 
-		# Determine log file location
-		$logFilePath = Join-Path -Path $LogsDirectory -ChildPath $FileName
+        # Determine log file location
+        $logFilePath = Join-Path -Path $LogsDirectory -ChildPath $FileName
 
-		# Construct time stamp for log entry
-		if (-not(Test-Path -Path 'variable:global:TimezoneBias'))
+        # Construct time stamp for log entry
+        if (-not(Test-Path -Path 'variable:global:TimezoneBias'))
         {
-			[String]$global:TimezoneBias = [System.TimeZoneInfo]::Local.GetUtcOffset((Get-Date)).TotalMinutes
-			if ($TimezoneBias -match '^-')
+            [String]$global:TimezoneBias = [System.TimeZoneInfo]::Local.GetUtcOffset((Get-Date)).TotalMinutes
+            if ($TimezoneBias -match '^-')
             {
-				$TimezoneBias = $TimezoneBias.Replace('-', '+')
-			}
-			else {
-				$TimezoneBias = '-' + $TimezoneBias
-			}
-		}
+                $TimezoneBias = $TimezoneBias.Replace('-', '+')
+            }
+            else {
+                $TimezoneBias = '-' + $TimezoneBias
+            }
+        }
 
-		$Time = -join @((Get-Date -Format 'HH:mm:ss.fff'), $TimezoneBias)
+        $Time = -join @((Get-Date -Format 'HH:mm:ss.fff'), $TimezoneBias)
 
-		# Construct date for log entry
-		$Date = (Get-Date -Format 'MM-dd-yyyy')
+        # Construct date for log entry
+        $Date = (Get-Date -Format 'MM-dd-yyyy')
 
-		# Construct context for log entry
-		$Context = $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)
+        # Construct context for log entry
+        $Context = $([System.Security.Principal.WindowsIdentity]::GetCurrent().Name)
 
-		# Construct final log entry
-		$LogText = "<![LOG[$($Message)]LOG]!><time=""$($Time)"" date=""$($Date)"" component=""$FileName"" context=""$($Context)"" type=""$($Severity)"" thread=""$($PID)"" file="""">"
+        # Construct final log entry
+        $LogText = "<![LOG[$($Message)]LOG]!><time=""$($Time)"" date=""$($Date)"" component=""$FileName"" context=""$($Context)"" type=""$($Severity)"" thread=""$($PID)"" file="""">"
 
-		# Add value to log file
-		try
+        # Add value to log file
+        try
         {
-			Out-File -InputObject $LogText -Append -NoClobber -Encoding Default -FilePath $logFilePath -ErrorAction Stop
-		}
-		catch [System.Exception]
+            Out-File -InputObject $LogText -Append -NoClobber -Encoding Default -FilePath $logFilePath -ErrorAction Stop
+        }
+        catch [System.Exception]
         {
-			Write-Warning -Message "Unable to append log entry to $FileName file. Error message at line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
-		}
-	}
+            Write-Warning -Message "Unable to append log entry to $FileName file. Error message at line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
+        }
+    }
 
     Write-CMLogEntry -Message 'Start of execution' -Severity 1
 
