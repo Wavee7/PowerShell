@@ -4,7 +4,11 @@
 
 .DESCRIPTION
     This scripts permits to sign PowerShell scripts with a Code Signing certificate. It needs to be
-    on the same directory level of the scripts to sign / folders where are the scripts to sign
+    on the same directory level of the scripts to sign / folders where are the scripts to sign. A log
+    file will be created on the same folder as this script.
+
+    To sign this script you can use the following command :
+    Set-AuthenticodeSignature -FilePath 'PATH_TO_THIS_SCRIPT' -Certificate (Get-ChildItem -Path 'cert:CurrentUser\My\' -CodeSigningCert) -IncludeChain All -TimestampServer 'http://timestamp.fabrikam.com/scripts/timstamper.dll'
 
 .PARAMETER Auto
     Set the script to look for .ps1 scripts on all folders where this script is
@@ -232,7 +236,6 @@ End
 
     exit 0
 }
-
 
 
 
