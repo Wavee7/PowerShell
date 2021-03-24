@@ -29,12 +29,12 @@
 
 .NOTES
     FileName : Set-CodeSigning.ps1
-	Author   : Jonathan Mouco
+    Author   : Jonathan Mouco
     Contact  : @Wavee7
     Created  : 21.11.13
     Updated  : 24.03.21
 
-	Contributors :
+    Contributors :
 
     Thanks : The work of @NickolajA (Nickolaj Andersen) and @MoDaly_IT (Maurice Daly) helped me to do a better script
 
