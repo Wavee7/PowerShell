@@ -3,44 +3,54 @@
     Sign PowerShell scripts with a Code Signing certificate
 
 .DESCRIPTION
-    This scripts permits to sign PowerShell scripts with a Code Signing certificate. It needs to be
-    on the same directory level of the scripts to sign / folders where are the scripts to sign. A log
-    file will be created on the same folder as this script.
+    This scripts permits to sign PowerShell scripts with a Code Signing certificate. On Auto mode without parameters,
+    it will sign the *.ps1 scripts that are on the same folder level and will look on the folders of the same level.
+    A log file will be created on the same folder as this script.
 
     To sign this script you can use the following command :
     Set-AuthenticodeSignature -FilePath 'PATH_TO_THIS_SCRIPT' -Certificate (Get-ChildItem -Path 'cert:CurrentUser\My\' -CodeSigningCert) -IncludeChain All -TimestampServer 'http://timestamp.fabrikam.com/scripts/timstamper.dll'
 
 .PARAMETER Auto
-    Set the script to look for .ps1 scripts on all folders where this script is
+    Default mode. Set the script to look for .ps1 scripts on all folders where this script is
+
+.PARAMETER Target
+    Set the script to sign all $PS1Name scripts on specific folder/path
+
+.PARAMETER PS1Name
+    Optional. Force the script to sign only the specified .ps1 script name
 
 .PARAMETER Manual
     Override the Auto mode. Set the script to look for .ps1 scripts on folder that is set on Folder parameter
 
-.PARAMETER Folder
-    The folder name that is on the same level of this script where to look for scripts to sign
-
 .EXAMPLE
-    # Start the script in Auto mode. Will check every .ps1 files to sign on every folder recursively that are on the same level of this script
+    # Start the script in Auto mode. Will sign every .ps1 files on every folder recursively that are on the same directory level of this script
     .\Set-CodeSigning.ps1
 
 .EXAMPLE
-    # Start the script in Manual mode. Will check every .ps1 to sign on specified folder recursively that is on the same level of this script
+    # Sign the scripts on specific path
+    .\Set-CodeSigning.ps1 -Target '\\RemoteFolder\ScriptsToSign'
+
+.EXAMPLE
+    # Start the script in Manual mode. Recursively sign every .ps1 on specified folder of the same directory level than this script
+    .\Set-CodeSigning.ps1 -Manual -Target 'ScriptsToSign'
+
+.EXAMPLE
+    # Start the script in Manual mode. Will sign every .ps1 on specified folder recursively that is on the same directory level of this script
     .\Set-CodeSigning.ps1 -Manual -Folder 'ScriptsToSign'
 
 .NOTES
     FileName : Set-CodeSigning.ps1
     Author   : Jonathan Mouco
     Contact  : @Wavee7
-    Created  : 21.11.13
-    Updated  : 24.03.21
 
     Contributors :
 
     Thanks : The work of @NickolajA (Nickolaj Andersen) and @MoDaly_IT (Maurice Daly) helped me to do a better script
 
     Version history :
-    1.0.0 - (2013-11-21) - Script created
+    2.1.0 - (2021-03-24) - Added PS1Name parameter, changed Folder parameter to Target parameter and his behavor
     2.0.0 - (2021-03-24) - The script as been rebuilded from scratch adding parameter sets and other functions
+    1.0.0 - (2013-11-21) - Script created
 #>
 
 
@@ -51,14 +61,19 @@
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Auto')]
 
 param (
-    [Parameter(Mandatory = $false, ParameterSetName = 'Auto', HelpMessage = 'Set the script to sign all Install.ps1 scripts on same parent folders.')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Auto', HelpMessage = 'Set the script to sign all $PS1Name scripts')]
 	[Switch]$Auto,
 
-    [Parameter(Mandatory = $false, ParameterSetName = 'Manual', HelpMessage = 'Set the script to sign all Install.ps1 scripts on specific folders.')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Manual', HelpMessage = 'Set the script to sign all $PS1Name scripts on specific path')]
 	[Switch]$Manual,
 
-    [Parameter(Mandatory = $true, ParameterSetName = 'Manual', HelpMessage = 'Define the folder name where the scripts to Sign will be.')]
-	[String]$Folder = ''
+    [Parameter(Mandatory = $false, ParameterSetName = 'Auto', HelpMessage = 'Set the script to sign all $PS1Name scripts on specific folder/path')]
+    [Parameter(Mandatory = $true, ParameterSetName = 'Manual')]
+	[String]$Target,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'Auto', HelpMessage = 'Force the script to look only to specified .ps1 scripts name')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Manual')]
+	[String]$PS1Name = '*.ps1'
 )
 
 Begin
@@ -169,25 +184,43 @@ Process
     {
         Write-CMLogEntry -Message 'Running mode : Auto' -Severity 1
 
+        # Set the Target
+        if (-not([System.String]::IsNullOrEmpty($Target)))
+        {
+            if (Test-Path -Path $Target)
+            {
+                Write-CMLogEntry -Message "Target set to : $Target" -Severity 1
+            }
+            else
+            {
+                Write-CMLogEntry -Message "'$Target' is not a valid path or does not exist" -Severity 2
+                Write-CMLogEntry -Message 'End of execution' -Severity 1; exit
+            }
+        }
+        else
+        {
+            $Target = $scriptRoot
+        }
+
         # Get the scripts to sign
-        $scriptsToSign = Get-ChildItem -Path $scriptRoot -Filter 'Install.ps1' -File -Recurse
+        $scriptsToSign = Get-ChildItem -Path $Target -Filter $PS1Name -File -Recurse
     }
     elseif ($PSCmdLet.ParameterSetName -like 'Manual')
     {
         Write-CMLogEntry -Message 'Running mode : Manual' -Severity 1
 
-        [String]$scriptsToSignPath = Join-Path -Path $scriptRoot -ChildPath $Folder
+        [String]$scriptsToSignPath = Join-Path -Path $scriptRoot -ChildPath $Target
 
         if (Test-Path -Path $scriptsToSignPath)
         {
-            Write-CMLogEntry -Message "'$scriptsToSignPath' is a valid path" -Severity 1
+            Write-CMLogEntry -Message "Target set to : $scriptsToSignPath" -Severity 1
 
             # Get the scripts to sign
-            $scriptsToSign = Get-ChildItem -Path $scriptsToSignPath -Filter 'Install.ps1' -File -Recurse
+            $scriptsToSign = Get-ChildItem -Path $scriptsToSignPath -Filter $PS1Name -File -Recurse
         }
         else
         {
-            Write-CMLogEntry -Message "$scriptsToSignPath is not a valid path" -Severity 2
+            Write-CMLogEntry -Message "'$scriptsToSignPath' is not a valid path or does not exist" -Severity 2
             Write-CMLogEntry -Message 'End of execution' -Severity 1; exit
         }
     }
@@ -213,15 +246,16 @@ Process
     {
         try
         {
+            Write-CMLogEntry -Message "Attempt to sign '$script' on '$($script.DirectoryName)'" -Severity 1
+
             if ((Get-AuthenticodeSignature -FilePath $script.FullName | Select-Object -Property Status).Status -ne 'Valid')
             {
-                Write-CMLogEntry -Message "Attempt to sign '$script' on '$($script.DirectoryName)'" -Severity 1
                 Set-AuthenticodeSignature -FilePath $script.Fullname -Certificate $codeSignCert -IncludeChain All -TimestampServer 'http://timestamp.fabrikam.com/scripts/timstamper.dll' | Out-Null
                 Write-CMLogEntry -Message 'Success' -Severity 1
             }
             else
             {
-                Write-CMLogEntry -Message "The '$($script.Name)' on '$($script.DirectoryName)' already have a valid signature" -Severity 1
+                Write-CMLogEntry -Message "'$($script.Name)' on '$($script.DirectoryName)' already have a valid signature" -Severity 1
             }
         }
         catch
@@ -236,6 +270,7 @@ End
 
     exit 0
 }
+
 
 
 
