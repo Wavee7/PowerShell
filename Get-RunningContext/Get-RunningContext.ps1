@@ -20,12 +20,12 @@
 #>
 function Get-RunningContext {
     <#
-        .SYNOPSIS
-            Get the current Windows running context
+    .SYNOPSIS
+        Get the current Windows running context
 
-        .OUTPUTS
-            Return a String with the current running context
-            ('FullOS', 'FullOS_OSD', 'WinPE')
+    .OUTPUTS
+        Return a String with the current running context
+        ('FullOS', 'FullOS_OSD', 'WinPE')
     #>
 
     [CmdletBinding()]
