@@ -11,3 +11,10 @@ PowerShell scripts projects
 2021-03-24 - Updated Set-CodeSigning.ps1 to v2.1.0
 
 2021-03-23 - Repository creation and initial commit
+
+
+
+Thanks :
+
+@NickolajA (Nickolaj Andersen)
+@MoDaly_IT (Maurice Daly)
