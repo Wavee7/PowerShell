@@ -34,20 +34,15 @@
     # Start the script in Manual mode. Recursively sign every .ps1 on specified folder of the same directory level than this script
     .\Set-CodeSigning.ps1 -Manual -Target 'ScriptsToSign'
 
-.EXAMPLE
-    # Start the script in Manual mode. Will sign every .ps1 on specified folder recursively that is on the same directory level of this script
-    .\Set-CodeSigning.ps1 -Manual -Folder 'ScriptsToSign'
-
 .NOTES
     FileName : Set-CodeSigning.ps1
     Author   : Jonathan Mouco
     Contact  : @Wavee7
 
-    Contributors :
-
     Thanks : The work of @NickolajA (Nickolaj Andersen) and @MoDaly_IT (Maurice Daly) helped me to do a better script
 
     Version history :
+    2.1.1 - (2021-11-19) - Comments correction
     2.1.0 - (2021-03-24) - Added PS1Name parameter, changed Folder parameter to Target parameter and his behavor
     2.0.0 - (2021-03-24) - The script as been rebuilded from scratch adding parameter sets and other functions
     1.0.0 - (2013-11-21) - Script created
