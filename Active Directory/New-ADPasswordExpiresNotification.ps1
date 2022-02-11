@@ -44,6 +44,7 @@
     License  : MIT (https://github.com/Wavee7/PowerShell/blob/main/LICENSE)
 
     Version history :
+    1.0.1 - (2022-02-11) - Minor text change
     1.0.0 - (2022-02-07) - Script created
 #>
 
@@ -532,7 +533,7 @@ Process {
                                 break
                             }
                             {$PSItem.TotalDays -gt 1} {
-                                $objEmailBodyFields.DaysMessage = "Your Windows password expires in $($objUserInfo.DaysBeforeExpire.Days) days"
+                                $objEmailBodyFields.DaysMessage = "Your Windows password expires in about $($objUserInfo.DaysBeforeExpire.Days) days"
                                 $objEmailBodyFields.BodyDaysMessage = $objUserInfo.ExpiresOn.ToString('dddd à HH:mm', [CultureInfo]'en-US')
                                 $objEmailBodyFields.BodyDaysMessageOpt = 2
 
