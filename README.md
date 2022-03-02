@@ -1,5 +1,7 @@
 PowerShell scripts projects
 
+2022-03-02 - Updated New-ADPasswordExpiresNotification.ps1 to v2.0.0
+
 2022-02-07 - Added New-ADPasswordExpiresNotification.ps1 v1.0.0
 
 2021-11-19 - Updated Set-CodeSigning.ps1 to v2.1.1
